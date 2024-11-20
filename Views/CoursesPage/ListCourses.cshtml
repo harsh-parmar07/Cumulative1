@@ -1,0 +1,61 @@
+﻿@model IEnumerable<Cumulative_1.Models.Course>
+
+<!-- Displaying all the courses on the web page from where you can select any course  -->
+
+<div class="course-list">
+    <h2>Courses We Offer: </h2>
+    @foreach (Cumulative_1.Models.Course Course in Model)
+    {
+        <div class="course-card">
+            <a href="/CoursesPage/ShowCourses/@Course.CourseId" class="course-link">
+
+                <h3 class="course-name">@Course.CourseName</h3>
+            </a>
+        </div>
+    }
+</div>
+
+
+<style>
+    .course-list {
+        display: flex;
+        flex-wrap: wrap;
+        flex-direction: column;
+        gap: 20px;
+        padding: 20px;
+        background-color: #f9f9f9;
+    }
+
+    .course-card {
+        background-color: #ffffff;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        padding: 15px;
+        width: 250px;
+        text-align: center;
+        transition: transform 0.2s ease-in-out;
+    }
+
+        .course-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+        }
+
+    .course-link {
+        text-decoration: none;
+        color: #333;
+    }
+
+        .course-link:hover {
+            color: #007bff;
+        }
+
+    .course-name {
+        font-size: 1.2rem;
+        font-weight: bold;
+        margin: 0;
+    }
+</style>
+
+

@@ -1,0 +1,44 @@
+﻿@model Cumulative_1.Models.Teacher
+
+<div class="teacher-details-container">
+
+    <!-- Displaying the details of the selected teacher -->
+
+    <h1 class="teacher-name">@Model.TeacherFName @Model.TeacherLName</h1>
+    <p class="teacher-detail">Employee Number: <span>@Model.EmployeeNumber.ToString()</span></p>
+    <p class="teacher-detail">Hire Date: <span>@Model.TeacherHireDate.ToString("yyyy-M-d")</span></p>
+    <p class="teacher-detail">Salary: $<span>@Model.TeacherSalary.ToString()</span></p>
+
+</div>
+
+<style>
+    .teacher-details-container {
+        max-width: 600px;
+        margin: 20px auto;
+        padding: 20px;
+        background-color: #f9f9f9;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .teacher-name {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #333;
+        text-align: center;
+        margin-bottom: 15px;
+    }
+
+    .teacher-detail {
+        font-size: 1.2rem;
+        color: #555;
+        margin: 10px 0;
+        line-height: 1.5;
+    }
+
+        .teacher-detail span {
+            font-weight: bold;
+            color: #007bff;
+        }
+</style>

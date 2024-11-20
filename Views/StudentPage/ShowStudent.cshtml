@@ -1,0 +1,43 @@
+﻿@model Cumulative_1.Models.Student
+
+<div class="student-details-container">
+
+    <!-- Displaying the details of the selected student -->
+
+    <h1 class="student-name">@Model.StudentFName @Model.StudentLName</h1>
+    <p class="student-detail">Student Number : <span>@Model.StudentNumber.ToString()</span></p>
+    <p class="student-detail">Enrolment Date :  <span>@Model.StudentEnrolmentDate.ToString("yyyy-M-d")</span></p>
+
+</div>
+
+<style>
+    .student-details-container {
+        max-width: 600px;
+        margin: 20px auto;
+        padding: 20px;
+        background-color: #f9f9f9;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .student-name {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #333;
+        text-align: center;
+        margin-bottom: 15px;
+    }
+
+    .student-detail {
+        font-size: 1.2rem;
+        color: #555;
+        margin: 10px 0;
+        line-height: 1.5;
+    }
+
+        .student-detail span {
+            font-weight: bold;
+            color: #007bff;
+        }
+</style>

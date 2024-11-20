@@ -1,0 +1,45 @@
+﻿@model Cumulative_1.Models.Course
+
+<div class="course-details-container">
+
+    <!-- Displaying the details of the selected course -->
+
+    <h1 class="course-name">@Model.CourseName</h1>
+    <p class="course-detail">Course Code :  <span>@Model.CourseCode</span></p>
+    <!--<p class="course-detail">Teacher Id :  <span></span></p> -->
+    <p class="course-detail">Course Start Date : <span>@Model.CourseStartDate</span></p>
+    <p class="course-detail">Course Finish Date :<span>@Model.CourseStartDate</span></p>
+
+</div>
+
+<style>
+    .course-details-container {
+        max-width: 600px;
+        margin: 20px auto;
+        padding: 20px;
+        background-color: #f9f9f9;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .course-name {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #333;
+        text-align: center;
+        margin-bottom: 15px;
+    }
+
+    .course-detail {
+        font-size: 1.2rem;
+        color: #555;
+        margin: 10px 0;
+        line-height: 1.5;
+    }
+
+        .course-detail span {
+            font-weight: bold;
+            color: #007bff;
+        }
+</style>
