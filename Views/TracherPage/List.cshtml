@@ -1,60 +1,41 @@
-﻿@model IEnumerable<Cumulative_1.Models.Teacher>
+﻿@model TeacherSearchModel
 
-<!-- Displaying all the teachers on the web page from where you can select any teacher  -->
+<div class="container shadow-lg p-5 m-4 bg-light rounded">
 
-<div class="teacher-list">
-    <h2>Our Teachers</h2>
-    @foreach (Cumulative_1.Models.Teacher Teacher in Model)
+    <h3 class="text-center text-primary mb-4">List of Teachers</h3>
+
+    <!-- Date range filter form -->
+    @using (Html.BeginForm("List", "TeacherPage", FormMethod.Post))
     {
-        <div class="teacher-card">
-            <a href="/TeacherPage/Show/@Teacher.TeacherId" class="teacher-link">
-                <h3 class="teacher-name">@Teacher.TeacherFName @Teacher.TeacherLName</h3>
-            </a>
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <label for="StartDate" class="form-label">Start Date:</label>
+                <input type="date" id="StartDate" name="StartDate" value="@Model.StartDate" class="form-control" />
+            </div>
+            <div class="col-md-6">
+                <label for="EndDate" class="form-label">End Date:</label>
+                <input type="date" id="EndDate" name="EndDate" value="@Model.EndDate" class="form-control" />
+            </div>
+        </div>
+        <div class="text-center">
+            <button type="submit" class="btn btn-primary btn-lg mt-3">Search</button>
         </div>
     }
+
+    <!-- Teacher List -->
+    <div class="mt-4">
+        <h4 class="text-center text-primary">Teachers</h4>
+        <div class="list-group">
+            @foreach (Cumulative_1.Models.Teacher CurrentTeacher in Model.Teachers)
+            {
+                <a href="/TeacherPage/Show/@CurrentTeacher.TeacherId" class="list-group-item list-group-item-action flex-column align-items-start">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="mb-1">@CurrentTeacher.TeacherFName @CurrentTeacher.TeacherLName</h5>
+                    </div>
+                    <p class="mb-1">Teacher ID: @CurrentTeacher.TeacherId</p>
+                </a>
+            }
+        </div>
+    </div>
+
 </div>
-
-
-<style>
-    .teacher-list {
-        display: flex;
-        flex-wrap: wrap;
-        flex-direction: column;
-        gap: 20px;
-        padding: 20px;
-        background-color: #f9f9f9;
-    }
-
-    .teacher-card {
-        background-color: #ffffff;
-        border: 1px solid #ddd;
-        border-radius: 5px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        padding: 15px;
-        width: 250px;
-        text-align: center;
-        transition: transform 0.2s ease-in-out;
-    }
-
-        .teacher-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
-        }
-
-    .teacher-link {
-        text-decoration: none;
-        color: #333;
-    }
-
-        .teacher-link:hover {
-            color: #007bff;
-        }
-
-    .teacher-name {
-        font-size: 1.2rem;
-        font-weight: bold;
-        margin: 0;
-    }
-</style>
-
-

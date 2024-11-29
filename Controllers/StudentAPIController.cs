@@ -1,38 +1,30 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Cumulative_1.Models;
 using Microsoft.AspNetCore.Mvc;
-using Cumulative_1.Models;
-using System;
 using MySql.Data.MySqlClient;
-
-
 
 namespace Cumulative_1.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/Student")]
     [ApiController]
     public class StudentAPIController : ControllerBase
     {
+        private readonly SchoolDbContext _context;
 
-        // This is a dependancy injection
-        private readonly SchoolDbContext _studentcontext;
-        public StudentAPIController(SchoolDbContext studentcontext)
+        // Dependency injection of school database context
+        public StudentAPIController(SchoolDbContext context)
         {
-            _studentcontext = studentcontext;
+            _context = context;
         }
 
-
         /// <summary>
-        /// When we click on Students in Navigation bar on Home page, We are directed to a webpage that lists all students in the database student
+        /// Returns a list of Students in the system
         /// </summary>
         /// <example>
-        /// GET api/Student/ListStudents -> [{"StudentFname":"Mohit", "StudentLName":"Bansal"},{"StudentFname":"Darshan", "StudentLName":"Malhotra"},.............]
-        /// GET api/Student/ListStudents -> [{"StudentFname":"Aakriti", "StudentLName":"Garg"},{"StudentFname":"Himanshi", "StudentLName":"Goyal"},.............]
+        /// GET api/Student/ListStudents -> [{"studentId":1,"studentFName":"Sarah","studentLName":"Valdez","studentNumber":"N1678","enrolDate":"2018-06-18"},{"studentId":2,"studentFName":"Jennifer","studentLName":"Faulkner","studentNumber":"N1679","enrolDate":"2018-08-02"},{"studentId":3,"studentFName":"Austin","studentLName":"Simon","studentNumber":"N1682","enrolDate":"2018-06-14"},..]
         /// </example>
         /// <returns>
-        /// A list all the students in the database student
+        /// A list of student objects 
         /// </returns>
-
-
         [HttpGet]
         [Route(template: "ListStudents")]
         public List<Student> ListStudents()
@@ -40,133 +32,92 @@ namespace Cumulative_1.Controllers
             // Create an empty list of Students
             List<Student> Students = new List<Student>();
 
-            // 'using' keyword is used that will close the connection by itself after executing the code given inside
-            using (MySqlConnection Connection = _studentcontext.AccessDatabase())
+            // 'using' will close the connection after the code executes
+            using (MySqlConnection Connection = _context.AccessDatabase())
             {
-
-                // Opening the connection
+                // Open the connection
                 Connection.Open();
 
-
-                // Establishing a new query for our database 
+                // Establish a new command (query) for our database
                 MySqlCommand Command = Connection.CreateCommand();
 
+                // Set the SQL Query
+                Command.CommandText = "SELECT * FROM students";
 
-                // Writing the SQL Query we want to give to database to access information
-                Command.CommandText = "select * from students";
-
-
-                // Storing the Result Set query in a variable
+                // Gather Result Set of Query into a variable
                 using (MySqlDataReader ResultSet = Command.ExecuteReader())
                 {
-
-                    // While loop is used to loop through each row in the ResultSet 
+                    // Loop Through Each Row of the Result Set
                     while (ResultSet.Read())
                     {
-
-                        // Accessing the information of Student using the Column name as an index
-                        int Id = Convert.ToInt32(ResultSet["studentid"]);
-                        string FirstName = ResultSet["studentfname"].ToString();
-                        string LastName = ResultSet["studentlname"].ToString();
-                        string S_Number = ResultSet["studentnumber"].ToString();
-                        DateTime EnrolmentDate = Convert.ToDateTime(ResultSet["enroldate"]);
-
-
-                        // Assigning short names for properties of the Student
-                        Student EachStudent = new Student()
-                        {
-                            StudentId = Id,
-                            StudentFName = FirstName,
-                            StudentLName = LastName,
-                            StudentEnrolmentDate = EnrolmentDate,
-                            StudentNumber = S_Number,
-                        };
-
-
-                        // Adding all the values of properties of EachStudent in Students List
-                        Students.Add(EachStudent);
-
+                        Student CurrentStudent = new Student();
+                        // Access Column information by the DB column name as an index
+                        CurrentStudent.StudentId = Convert.ToInt32(ResultSet["studentid"]);
+                        CurrentStudent.StudentFName = (ResultSet["studentfname"]).ToString();
+                        CurrentStudent.StudentLName = (ResultSet["studentlname"]).ToString();
+                        CurrentStudent.StudentNumber = (ResultSet["studentnumber"]).ToString();
+                        CurrentStudent.EnrolDate = Convert.ToDateTime(ResultSet["enroldate"]).ToString("yyyy-MM-dd");
+                        // Add it to the Students list
+                        Students.Add(CurrentStudent);
                     }
                 }
             }
-
-
-            //Return the final list of Students 
+            // Return the final list of students
             return Students;
         }
 
 
         /// <summary>
-        /// When we select one student , it returns information of the selected Student in the database by their ID 
+        /// Returns a student in the database by their ID
         /// </summary>
+        /// <param name="id">It accepts an id which is an integer</param>
         /// <example>
-        /// GET api/Student/FindStudent/3 -> {"StudentId":3,"StudentFname":"Sam","StudentLName":"Cooper", .......}
+        /// GET api/Student/FindStudent/7 -> {"studentId":7,"studentFName":"Jason","studentLName":"Freeman","studentNumber":"N1694","enrolDate":"2018-08-16"}
         /// </example>
         /// <returns>
-        /// Information about the Student selected
+        /// A matching student object by its ID. Empty object if Student not found
         /// </returns>
-
-
-
         [HttpGet]
         [Route(template: "FindStudent/{id}")]
         public Student FindStudent(int id)
         {
-
-            // Created an object SelectedStudent using Student definition defined as Class in Models
+            //Empty Student
             Student SelectedStudent = new Student();
 
-
-            // 'using' keyword is used that will close the connection by itself after executing the code given inside
-            using (MySqlConnection Connection = _studentcontext.AccessDatabase())
+            // 'using' will close the connection after the code executes
+            using (MySqlConnection Connection = _context.AccessDatabase())
             {
-
-                // Opening the Connection
+                // Open the connection
                 Connection.Open();
 
-                // Establishing a new query for our database 
+                // Establish a new command (query) for our database
                 MySqlCommand Command = Connection.CreateCommand();
 
-
-                // @id is replaced with a 'sanitized'(masked) id so that id can be referenced
-                // without revealing the actual @id
-                Command.CommandText = "select * from students where studentid=@id";
+                // Set the SQL Query
+                Command.CommandText = "SELECT * FROM students WHERE studentid=@id";
                 Command.Parameters.AddWithValue("@id", id);
 
-
-                // Storing the Result Set query in a variable
+                // Gather Result Set of Query into a variable
                 using (MySqlDataReader ResultSet = Command.ExecuteReader())
                 {
-
-                    // While loop is used to loop through each row in the ResultSet 
+                    // Loop Through Each Row of the Result Set
                     while (ResultSet.Read())
                     {
+                        // Access Column information by the DB column name as an index
+                        SelectedStudent.StudentId = Convert.ToInt32(ResultSet["studentid"]);
+                        SelectedStudent.StudentFName = (ResultSet["studentfname"]).ToString();
+                        SelectedStudent.StudentLName = (ResultSet["studentlname"]).ToString();
+                        SelectedStudent.StudentNumber = (ResultSet["studentnumber"]).ToString();
+                        SelectedStudent.EnrolDate = Convert.ToDateTime(ResultSet["enroldate"]).ToString("yyyy-MM-dd");
 
-                        // Accessing the information of Student using the Column name as an index
-                        int Id = Convert.ToInt32(ResultSet["studentid"]);
-                        string FirstName = ResultSet["studentfname"].ToString();
-                        string LastName = ResultSet["studentlname"].ToString();
-                        string S_Number = ResultSet["studentnumber"].ToString();
-                        DateTime EnrolmentDate = Convert.ToDateTime(ResultSet["enroldate"]);
-
-
-                        // Accessing the information of the properties of Student and then assigning it to the short names 
-                        // created above for all properties of the Student
-                        SelectedStudent.StudentId = Id;
-                        SelectedStudent.StudentFName = FirstName;
-                        SelectedStudent.StudentLName = LastName;
-                        SelectedStudent.StudentEnrolmentDate = EnrolmentDate;
-                        SelectedStudent.StudentNumber = S_Number;
 
                     }
                 }
             }
-
-
-            //Return the Information of the SelectedStudent
+            // Return the final list of student names
             return SelectedStudent;
         }
+
+
     }
-
-
 }

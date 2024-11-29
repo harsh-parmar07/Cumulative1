@@ -4,20 +4,23 @@ namespace Cumulative_1.Models
 {
     public class SchoolDbContext
     {
-        // Input the details of the username, password, server, and port number to connect the server to the database
+
+        // These are all the readonly secret properties
+        // Only the SchoolDb can use them
+
         private static string User { get { return "root"; } }
         private static string Password { get { return ""; } }
         private static string Database { get { return "school"; } }
         private static string Server { get { return "localhost"; } }
         private static string Port { get { return "3306"; } }
 
-        // ConnectionString is a series of credentials which is used to connect to the database
+        //ConnectionString is a series of credentials used to connect to the database.
         protected static string ConnectionString
         {
             get
             {
                 // convert zero datetime is a db connection setting which returns NULL if the date is 0000-00-00
-                // which allows interpretation of the date in Csharp
+                // this can allow C# to have an easier interpretation of the date (no date instead of 0 BCE)
 
                 return "server = " + Server
                     + "; user = " + User
@@ -27,23 +30,22 @@ namespace Cumulative_1.Models
                     + "; convert zero datetime = True";
             }
         }
-
-
-
-        /// We use this method to get Database
+        // This is the method we actually use to get the database!
         /// <summary>
-        /// It returns a connection to the Database
+        /// Returns a connection to the school database.
         /// </summary>
         /// <example>
-        /// private SchoolDbContext Teachers = new SchoolDbContext();
-        /// MySqlConnection Connection = Teachers.AccessDatabase();
+        /// private SchoolDbContext School = new SchoolDbContext();
+        /// MySqlConnection Connection = School.AccessDatabase();
         /// </example>
         /// <returns>A MySqlConnection Object</returns>
         public MySqlConnection AccessDatabase()
         {
-            // We are giving instance to SchoolDbContext class to create an object
-            // The object is a specific connection to our school database on port 3306 of localhost
+            // We are instantiating the MySqlConnection Class to create an object
+            // the object is a specific connection to our school database on port 3306 of localhost
             return new MySqlConnection(ConnectionString);
         }
+
+
     }
 }

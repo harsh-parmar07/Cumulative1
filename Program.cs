@@ -2,10 +2,12 @@ using System;
 using Cumulative_1.Controllers;
 using Cumulative_1.Models;
 
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
 
 // Swagger API help pages
 builder.Services.AddEndpointsApiExplorer();
@@ -13,9 +15,13 @@ builder.Services.AddSwaggerGen();
 
 // Database
 builder.Services.AddScoped<SchoolDbContext>();
-builder.Services.AddScoped<TeacherAPIController>();
-builder.Services.AddScoped<CoursesAPIController>();
+// API for now, but should be added as separate Author Service
+builder.Services.AddScoped<CourseAPIController>();
 builder.Services.AddScoped<StudentAPIController>();
+builder.Services.AddScoped<TeacherAPIController>();
+
+// Add services to the container.
+builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
@@ -33,6 +39,7 @@ app.UseStaticFiles();
 app.UseRouting();
 
 app.UseAuthorization();
+
 
 app.UseSwagger();
 app.UseSwaggerUI();

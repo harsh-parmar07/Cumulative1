@@ -1,18 +1,14 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Cumulative_1.Controllers;
 using Cumulative_1.Models;
-using Cumulative_1.Controllers;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Cumulative_1.Controllers
 {
     public class TeacherPageController : Controller
     {
-
-        // API is responsible for gathering the information from the Database and MVC is responsible for giving an HTTP response
-        // as a web page that shows the information written in the View
-
-        // In practice, both the TeacherAPI and TeacherPage controllers
+        // currently relying on the API to retrieve author information
+        // this is a simplified example. In practice, both the TeacherAPI and TeacherPage controllers
         // should rely on a unified "Service", with an explicit interface
-
         private readonly TeacherAPIController _api;
 
         public TeacherPageController(TeacherAPIController api)
@@ -20,41 +16,52 @@ namespace Cumulative_1.Controllers
             _api = api;
         }
 
-
-        /// <summary>
-        /// When we click on the Teachers button in Navugation Bar, it returns the web page displaying all the teachers in the Database school
-        /// </summary>
-        /// <returns>
-        /// List of all Teachers in the Database school
-        /// </returns>
-        /// <example>
-        /// GET : api/TeacherPage/List  ->  Gives the list of all Teachers in the Database school
-        /// </example>
-
+        // GET : TeacherPage/List
+        [HttpGet]
         public IActionResult List()
         {
-            List<Teacher> Teachers = _api.ListTeachers();
-            return View(Teachers);
+            var model = new TeacherSearchModel
+            {
+                // Get all teachers initially
+                Teachers = _api.ListTeachers()
+            };
+
+            return View(model);
         }
 
+        // POST : TeacherPage/List
+        // POST Data : TeacherSearchModel model
+        [HttpPost]
+        public IActionResult List(TeacherSearchModel model)
+        {
+            // Get all teachers from the API
+            List<Teacher> Teachers = _api.ListTeachers();
 
+            // Filter teachers by HireDate if StartDate and EndDate are provided
+            if (!string.IsNullOrEmpty(model.StartDate) && !string.IsNullOrEmpty(model.EndDate))
+            {
+                DateTime start = DateTime.Parse(model.StartDate);
+                DateTime end = DateTime.Parse(model.EndDate);
 
-        /// <summary>
-        /// When we Select one Teacher from the list, it returns the web page displaying the information of the SelectedTeacher from the database school
-        /// </summary>
-        /// <returns>
-        /// Information of the SelectedTeacher from the database school
-        /// </returns>
-        /// <example>
-        /// GET :api/TeacherPage/Show/{id}  ->  Gives the information of the SelectedTeacher
-        /// </example>
-        /// 
+                Teachers = Teachers.Where(teacher => DateTime.Parse(teacher.HireDate) >= start && DateTime.Parse(teacher.HireDate) <= end).ToList();
+            }
+
+            // Set the filtered list of teachers and return the model to the view
+            model.Teachers = Teachers;
+
+            // Pass the model to the view
+            return View(model);
+        }
+
+        // GET : TeacherPage/Show/{id}
         public IActionResult Show(int id)
         {
             Teacher SelectedTeacher = _api.FindTeacher(id);
+            ViewData["Id"] = id;
             return View(SelectedTeacher);
-        }
 
+
+        }
 
     }
 }

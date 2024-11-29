@@ -1,176 +1,209 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Cumulative_1.Models;
 using Microsoft.AspNetCore.Mvc;
-using Cumulative_1.Models;
-using System;
 using MySql.Data.MySqlClient;
-
 
 
 namespace Cumulative_1.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/Teacher")]
     [ApiController]
     public class TeacherAPIController : ControllerBase
     {
+        private readonly SchoolDbContext _context;
 
-        // This is dependancy injection
-        private readonly SchoolDbContext _schoolcontext;
-        public TeacherAPIController(SchoolDbContext schoolcontext)
+        public TeacherAPIController(SchoolDbContext context)
         {
-            _schoolcontext = schoolcontext;
+            _context = context;
         }
 
 
         /// <summary>
-        /// When we click on Teachers in Navigation bar on Home page, We are directed to a webpage that lists all teachers in the database school
+        /// Returns a list of Teachers in the system
         /// </summary>
         /// <example>
-        /// GET api/Teacher/ListTeachers -> [{"TeacherFname":"Manik", "TeacherLName":"Bansal"},{"TeacherFname":"Asha", "TeacherLName":"Bansal"},.............]
-        /// GET api/Teacher/ListTeachers -> [{"TeacherFname":"Apurva", "TeacherLName":"Gupta"},{"TeacherFname":"Himani", "TeacherLName":"Garg"},.............]
+        /// GET api/Teacher/ListTeachers -> [{"teacherId":1,"teacherFName":"Alexander","teacherLName":"Bennett","employeeNumber":"T378","hireDate":"2016-08-05 00:00:00","salary":55.30,"coursesByTeacher":[{"courseId":1,"courseCode":"http5101","teacherId":1,"startDate":"2018-09-04","finishDate":"2018-12-14","courseName":"Web Application Development"}]},{"teacherId":2,"teacherFName":"Caitlin","teacherLName":"Cummings","employeeNumber":"T381","hireDate":"2014-06-10 00:00:00","salary":62.77,"coursesByTeacher":[{"courseId":2,"courseCode":"http5102","teacherId":2,"startDate":"2018-09-04","finishDate":"2018-12-14","courseName":"Project Management"},{"courseId":6,"courseCode":"http5201","teacherId":2,"startDate":"2019-01-08","finishDate":"2019-04-27","courseName":"Security & Quality Assurance"}]},..]
         /// </example>
         /// <returns>
-        /// A list all the teachers in the database school
+        /// A list of teacher objects 
         /// </returns>
-
-
         [HttpGet]
         [Route(template: "ListTeachers")]
         public List<Teacher> ListTeachers()
         {
+
             // Create an empty list of Teachers
             List<Teacher> Teachers = new List<Teacher>();
 
-            // 'using' keyword is used that will close the connection by itself after executing the code given inside
-            using (MySqlConnection Connection = _schoolcontext.AccessDatabase())
+            // 'using' will close the connection after the code executes
+            using (MySqlConnection Connection = _context.AccessDatabase())
             {
-
-                // Opening the connection
+                // Open the connection
                 Connection.Open();
 
-
-                // Establishing a new query for our database 
+                // Establish a new command (query) for our database
                 MySqlCommand Command = Connection.CreateCommand();
 
+                // Set SQL Query
+                Command.CommandText = "SELECT * FROM teachers";
 
-                // Writing the SQL Query we want to give to database to access information
-                Command.CommandText = "select * from teachers";
-
-
-                // Storing the Result Set query in a variable
+                // Gather Result Set of Query into a variable
                 using (MySqlDataReader ResultSet = Command.ExecuteReader())
                 {
-
-                    // While loop is used to loop through each row in the ResultSet 
+                    // Loop Through Each Row of the Result Set
                     while (ResultSet.Read())
                     {
-
-                        // Accessing the information of Teacher using the Column name as an index
-                        int Id = Convert.ToInt32(ResultSet["teacherid"]);
-                        string FirstName = ResultSet["teacherfname"].ToString();
-                        string LastName = ResultSet["teacherlname"].ToString();
-                        string EmployeeNumber = ResultSet["employeenumber"].ToString();
-                        DateTime TeacherHireDate = Convert.ToDateTime(ResultSet["hiredate"]);
-                        decimal Salary = Convert.ToDecimal(ResultSet["salary"]);
-
-
-                        // Assigning short names for properties of the Teacher
-                        Teacher EachTeacher = new Teacher()
+                        Teacher CurrentTeacher = new Teacher();
+                        List<Course> Courses = new List<Course>();
+                        // Access Column information by the DB column name as an index
+                        CurrentTeacher.TeacherId = Convert.ToInt32(ResultSet["teacherid"]);
+                        CurrentTeacher.TeacherFName = ResultSet["teacherfname"].ToString();
+                        CurrentTeacher.TeacherLName = ResultSet["teacherlname"].ToString();
+                        CurrentTeacher.EmployeeNumber = ResultSet["employeenumber"].ToString();
+                        CurrentTeacher.HireDate = Convert.ToDateTime(ResultSet["hiredate"]).ToString("yyyy/MM/dd HH:mm:ss");
+                        CurrentTeacher.Salary = Convert.ToDecimal(ResultSet["salary"]);
+                        foreach (Course CourseDetails in ListCourses())
                         {
-                            TeacherId = Id,
-                            TeacherFName = FirstName,
-                            TeacherLName = LastName,
-                            TeacherHireDate = TeacherHireDate,
-                            EmployeeNumber = EmployeeNumber,
-                            TeacherSalary = Salary
-                        };
+                            if (CurrentTeacher.TeacherId == CourseDetails.TeacherId)
+                            {
 
-
-                        // Adding all the values of properties of EachTeacher in Teachers List
-                        Teachers.Add(EachTeacher);
-
+                                Courses.Add(CourseDetails);
+                            }
+                        }
+                        CurrentTeacher.CoursesByTeacher = Courses;
+                        // Add it to the Teachers list
+                        Teachers.Add(CurrentTeacher);
                     }
+
                 }
+
             }
 
-
-            //Return the final list of Teachers 
+            // Return the final list of teachers
             return Teachers;
         }
 
 
         /// <summary>
-        /// When we select one teacher , it returns information of the selected Teacher in the database by their ID 
+        /// Returns a list of Courses in the system
         /// </summary>
         /// <example>
-        /// GET api/Teacher/FindTeacher/3 -> {"TeacherId":3,"TeacherFname":"Sam","TeacherLName":"Cooper"}
+        /// GET api/Course/ListCourses -> [{"courseId":1,"courseCode":"http5101","teacherId":1,"startDate":"2018-09-04","finishDate":"2018-12-14","courseName":"Web Application Development"},{"courseId":2,"courseCode":"http5102","teacherId":2,"startDate":"2018-09-04","finishDate":"2018-12-14","courseName":"Project Management"},{"courseId":3,"courseCode":"http5103","teacherId":5,"startDate":"2018-09-04","finishDate":"2018-12-14","courseName":"Web Programming"},..]
         /// </example>
         /// <returns>
-        /// Information about the Teacher selected
+        /// A list of course objects 
         /// </returns>
-
-
-
         [HttpGet]
-        [Route(template: "FindTeacher/{id}")]
-        public Teacher FindTeacher(int id)
+        [Route(template: "ListCourses")]
+        public List<Course> ListCourses()
         {
+            // Create an empty list of Courses
+            List<Course> Courses = new List<Course>();
 
-            // Created an object SelectedTeacher using Teacher definition defined as Class in Models
-            Teacher SelectedTeacher = new Teacher();
-
-
-            // 'using' keyword is used that will close the connection by itself after executing the code given inside
-            using (MySqlConnection Connection = _schoolcontext.AccessDatabase())
+            // 'using' will close the connection after the code executes
+            using (MySqlConnection Connection = _context.AccessDatabase())
             {
-
-                // Opening the Connection
+                // Open the connection
                 Connection.Open();
 
-                // Establishing a new query for our database 
+                // Establish a new command (query) for our database
                 MySqlCommand Command = Connection.CreateCommand();
 
+                // Set the SQL Command
+                Command.CommandText = "SELECT * FROM courses";
 
-                // @id is replaced with a 'sanitized'(masked) id so that id can be referenced
-                // without revealing the actual @id
-                Command.CommandText = "select * from teachers where teacherid=@id";
-                Command.Parameters.AddWithValue("@id", id);
-
-
-                // Storing the Result Set query in a variable
+                // Gather Result Set of Query into a variable
                 using (MySqlDataReader ResultSet = Command.ExecuteReader())
                 {
-
-                    // While loop is used to loop through each row in the ResultSet 
+                    // Loop Through Each Row of the Result Set
                     while (ResultSet.Read())
                     {
-
-                        // Accessing the information of Teacher using the Column name as an index
-                        int Id = Convert.ToInt32(ResultSet["teacherid"]);
-                        string FirstName = ResultSet["teacherfname"].ToString();
-                        string LastName = ResultSet["teacherlname"].ToString();
-                        string EmployeeNumber = ResultSet["employeenumber"].ToString();
-                        DateTime TeacherHireDate = Convert.ToDateTime(ResultSet["hiredate"]);
-                        decimal Salary = Convert.ToDecimal(ResultSet["salary"]);
-
-
-                        // Accessing the information of the properties of Teacher and then assigning it to the short names 
-                        // created above for all properties of the Teacher
-                        SelectedTeacher.TeacherId = Id;
-                        SelectedTeacher.TeacherFName = FirstName;
-                        SelectedTeacher.TeacherLName = LastName;
-                        SelectedTeacher.TeacherHireDate = TeacherHireDate;
-                        SelectedTeacher.EmployeeNumber = EmployeeNumber;
-                        SelectedTeacher.TeacherSalary = Salary;
-
+                        Course CurrentCourse = new Course();
+                        // Access Column information by the DB column name as an index
+                        CurrentCourse.CourseId = Convert.ToInt32(ResultSet["courseid"]);
+                        CurrentCourse.CourseCode = (ResultSet["coursecode"]).ToString();
+                        CurrentCourse.TeacherId = Convert.ToInt32(ResultSet["teacherid"]);
+                        CurrentCourse.StartDate = Convert.ToDateTime(ResultSet["startdate"]).ToString("yyyy-MM-dd");
+                        CurrentCourse.FinishDate = Convert.ToDateTime(ResultSet["finishdate"]).ToString("yyyy-MM-dd");
+                        CurrentCourse.CourseName = (ResultSet["coursename"]).ToString();
+                        // Add it to the Courses list
+                        Courses.Add(CurrentCourse);
                     }
                 }
             }
 
-
-            //Return the Information of the SelectedTeacher
-            return SelectedTeacher;
+            // Return the final list of courses
+            return Courses;
         }
+
+
+
+        /// <summary>
+        /// Returns a teacher in the database by their ID
+        /// </summary>
+        /// <param name="id">It accepts an id which is an integer</param>
+        /// <example>
+        /// GET api/Teacher/FindTeacher/7 -> {"teacherId":7,"teacherFName":"Shannon","teacherLName":"Barton","employeeNumber":"T397","hireDate":"2013-08-04 00:00:00","salary":64.70,"coursesByTeacher":[{"courseId":4,"courseCode":"http5104","teacherId":7,"startDate":"2018-09-04","finishDate":"2018-12-14","courseName":"Digital Design"}]}
+        /// </example>
+        /// <returns>
+        /// A matching teacher object by its ID. Empty object if Teacher not found
+        /// </returns>
+        [HttpGet]
+        [Route(template: "FindTeacher/{id}")]
+        public Teacher FindTeacher(int id)
+        {
+            // Empty Teacher
+            Teacher SelectedTeacher = new Teacher();
+            List<Course> Courses = new List<Course>();
+            // 'using' will close the connection after the code executes
+            using (MySqlConnection Connection = _context.AccessDatabase())
+            {
+                // Establish a new command (query) for our database
+                Connection.Open();
+
+                // Create command
+                MySqlCommand Command = Connection.CreateCommand();
+
+                //  Set the SQL Command
+                Command.CommandText = "SELECT * FROM teachers WHERE teacherid=@id";
+                Command.Parameters.AddWithValue("@id", id);
+
+                // Gather Result Set of Query into a variable
+                using (MySqlDataReader ResultSet = Command.ExecuteReader())
+                {
+                    // Loop Through Each Row of the Result Set
+                    while (ResultSet.Read())
+                    {
+                        // Access Column information by the DB column name as an index
+                        SelectedTeacher.TeacherId = Convert.ToInt32(ResultSet["teacherid"]);
+                        SelectedTeacher.TeacherFName = ResultSet["teacherfname"].ToString();
+                        SelectedTeacher.TeacherLName = ResultSet["teacherlname"].ToString();
+                        SelectedTeacher.EmployeeNumber = ResultSet["employeenumber"].ToString();
+                        SelectedTeacher.HireDate = Convert.ToDateTime(ResultSet["hiredate"]).ToString("yyyy/MM/dd HH:mm:ss");
+                        SelectedTeacher.Salary = Convert.ToDecimal(ResultSet["salary"]);
+                        foreach (Course CourseDetails in ListCourses())
+                        {
+                            if (SelectedTeacher.TeacherId == CourseDetails.TeacherId)
+                            {
+
+                                Courses.Add(CourseDetails);
+                            }
+                        }
+                        SelectedTeacher.CoursesByTeacher = Courses;
+                    }
+
+                }
+
+            }
+
+            return SelectedTeacher;
+
+        }
+
+
+
+
     }
+
 
 
 }

@@ -2,7 +2,7 @@ using Cumulative_1.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 
-namespace Csharp_Cumulative_Assignment_1.Controllers
+namespace Cumulative_1.Controllers
 {
     public class HomeController : Controller
     {
