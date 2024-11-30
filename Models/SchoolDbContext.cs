@@ -9,7 +9,7 @@ namespace Cumulative_1.Models
         // Only the SchoolDb can use them
 
         private static string User { get { return "root"; } }
-        private static string Password { get { return ""; } }
+        private static string Password { get { return "root"; } }
         private static string Database { get { return "school"; } }
         private static string Server { get { return "localhost"; } }
         private static string Port { get { return "3306"; } }
