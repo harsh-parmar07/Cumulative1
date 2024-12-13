@@ -1,6 +1,7 @@
 ﻿using Cumulative_1.Models;
 using Microsoft.AspNetCore.Mvc;
 using MySql.Data.MySqlClient;
+using Mysqlx.Datatypes;
 using System.Diagnostics;
 
 
@@ -19,13 +20,14 @@ namespace Cumulative_1.Controllers
 
 
         /// <summary>
-        /// Retrieves a list of all teachers in the system
+        /// Retrieves a list of all teachers in the system.
         /// </summary>
         /// <example>
-        /// GET api/Teacher/ListTeachers -> [{"teacherId":1,"teacherFName":"Alexander","teacherLName":"Bennett","employeeNumber":"T378","hireDate":"2016-08-05 00:00:00","salary":55.30,"coursesByTeacher":[{"courseId":1,"courseCode":"http5101","teacherId":1,"startDate":"2018-09-04","finishDate":"2018-12-14","courseName":"Web Application Development"}]},{"teacherId":2,"teacherFName":"Caitlin","teacherLName":"Cummings","employeeNumber":"T381","hireDate":"2014-06-10 00:00:00","salary":62.77,"coursesByTeacher":[{"courseId":2,"courseCode":"http5102","teacherId":2,"startDate":"2018-09-04","finishDate":"2018-12-14","courseName":"Project Management"},{"courseId":6,"courseCode":"http5201","teacherId":2,"startDate":"2019-01-08","finishDate":"2019-04-27","courseName":"Security & Quality Assurance"}]},..]
+        /// Example:  
+        /// GET api/Teacher/ListTeachers -> [{"teacherId":1,"teacherFName":"Alexander","teacherLName":"Bennett","employeeNumber":"T378","hireDate":"2016-08-05 00:00:00","salary":55.30,"coursesByTeacher":[{"courseId":1,"courseCode":"http5101","teacherId":1,"startDate":"2018-09-04","finishDate":"2018-12-14","courseName":"Web Application Development"}]},{"teacherId":2,"teacherFName":"Caitlin","teacherLName":"Cummings","employeeNumber":"T381","hireDate":"2014-06-10 00:00:00","salary":62.77,"coursesByTeacher":[{"courseId":2,"courseCode":"http5102","teacherId":2,"startDate":"2018-09-04","finishDate":"2018-12-14","courseName":"Project Management"},{"courseId":6,"courseCode":"http5201","teacherId":2,"startDate":"2019-01-08","finishDate":"2019-04-27","courseName":"Security & Quality Assurance"}]},...]
         /// </example>
         /// <returns>
-        /// A collection of teacher objects, each including associated courses
+        /// Returns a collection of teacher objects.
         /// </returns>
 
         [HttpGet]
@@ -85,14 +87,16 @@ namespace Cumulative_1.Controllers
         }
 
 
+
         /// <summary>
-        /// Retrieves a list of all courses available in the system
+        /// Retrieves a list of all courses in the system.
         /// </summary>
         /// <example>
-        /// GET api/Course/ListCourses -> [{"courseId":1,"courseCode":"http5101","teacherId":1,"startDate":"2018-09-04","finishDate":"2018-12-14","courseName":"Web Application Development"},{"courseId":2,"courseCode":"http5102","teacherId":2,"startDate":"2018-09-04","finishDate":"2018-12-14","courseName":"Project Management"},{"courseId":3,"courseCode":"http5103","teacherId":5,"startDate":"2018-09-04","finishDate":"2018-12-14","courseName":"Web Programming"},..]
+        /// Example:  
+        /// GET api/Course/ListCourses -> [{"courseId":1,"courseCode":"http5101","teacherId":1,"startDate":"2018-09-04","finishDate":"2018-12-14","courseName":"Web Application Development"},{"courseId":2,"courseCode":"http5102","teacherId":2,"startDate":"2018-09-04","finishDate":"2018-12-14","courseName":"Project Management"},{"courseId":3,"courseCode":"http5103","teacherId":5,"startDate":"2018-09-04","finishDate":"2018-12-14","courseName":"Web Programming"},...]
         /// </example>
         /// <returns>
-        /// A collection of course objects
+        /// Returns a list of course objects.
         /// </returns>
 
         [HttpGet]
@@ -141,14 +145,15 @@ namespace Cumulative_1.Controllers
 
 
         /// <summary>
-        /// Retrieves a teacher from the database by their ID
+        /// Retrieves a teacher from the database based on their ID.
         /// </summary>
-        /// <param name="id">The unique identifier of the teacher (integer)</param>
+        /// <param name="id">An integer representing the teacher's ID.</param>
         /// <example>
+        /// Example:  
         /// GET api/Teacher/FindTeacher/7 -> {"teacherId":7,"teacherFName":"Shannon","teacherLName":"Barton","employeeNumber":"T397","hireDate":"2013-08-04 00:00:00","salary":64.70,"coursesByTeacher":[{"courseId":4,"courseCode":"http5104","teacherId":7,"startDate":"2018-09-04","finishDate":"2018-12-14","courseName":"Digital Design"}]}
         /// </example>
         /// <returns>
-        /// A teacher object matching the provided ID. An empty object is returned if the teacher is not found.
+        /// Returns the teacher object matching the provided ID. If no match is found, returns an empty object.
         /// </returns>
 
         [HttpGet]
@@ -204,23 +209,24 @@ namespace Cumulative_1.Controllers
         }
 
         /// <summary>
-        /// Adds a new teacher to the database
+        /// Inserts a new teacher into the database.
         /// </summary>
-        /// <param name="TeacherData">The teacher object containing details to be added</param>
+        /// <param name="TeacherData">An object containing the teacher's information.</param>
         /// <example>
-        /// POST: api/Teacher/AddTeacher
-        /// Headers: Content-Type: application/json
-        /// Request Body:
-        /// {
-        /// "TeacherFname": "Robert",
+        /// Example:  
+        /// POST: api/Teacher/AddTeacher  
+        /// Headers: Content-Type: application/json  
+        /// Request Body:  
+        /// {  
+        /// "TeacherFname": "Robert",  
         /// "TeacherLname": "Smith",  
-        /// "EmployeeNumber": "T102",
-        /// "HireDate": "2019-09-04",
-        /// "Salary": 55.25
+        /// "EmployeeNumber": "T102",  
+        /// "HireDate": "2019-09-04",  
+        /// "Salary": 55.25  
         /// } -> 25
         /// </example>
         /// <returns>
-        /// The ID of the newly inserted teacher if the operation is successful. Returns 0 if the operation fails.
+        /// Returns the ID of the newly inserted teacher if successful, or 0 if the operation fails.
         /// </returns>
 
 
@@ -258,17 +264,15 @@ namespace Cumulative_1.Controllers
         }
 
         /// <summary>
-        /// Deletes a teacher from the database
+        /// Removes a teacher from the database using their ID.
         /// </summary>
-        /// <param name="TeacherId">The primary key of the teacher to delete</param>
+        /// <param name="TeacherId">The primary key of the teacher to be deleted.</param>
         /// <example>
-        /// DELETE: api/Teacher/DeleteTeacher/{TeacherId}
-        /// Response: "The teacher with given id {TeacherId} has been removed from the DB"
+        /// Example:  
+        /// DELETE: api/Teacher/DeleteTeacher/{TeacherId} -> "The teacher with given id {TeacherId} has been removed from the DB"
         /// </example>
         /// <returns>
-        /// Returns a message indicating whether the teacher was successfully deleted:
-        /// - "The teacher with given id {teacherId} has been removed from the DB" if found and deleted.
-        /// - "The teacher with given id {teacherId} is not found" if the teacher ID is not found in the database.
+        /// Returns a message confirming the deletion: "The teacher with given id {teacherId} has been removed from the DB" if the teacher is found, or "The teacher with given id {teacherId} is not found" if the teacher does not exist in the database.
         /// </returns>
 
 
@@ -304,6 +308,65 @@ namespace Cumulative_1.Controllers
                 return $"The teacher with given id {TeacherId} is not found";
             }
 
+        }
+
+        /// <summary>
+        /// Updates the details of an existing teacher in the database. The teacher's data is provided as a Teacher object, and the request includes the Teacher ID.
+        /// </summary>
+        /// <param name="TeacherData">An object containing the updated information of the teacher.</param>
+        /// <param name="TeacherId">The primary key ID of the teacher to be updated.</param>
+        /// <example>
+        /// Example:  
+        /// PUT: api/Teacher/UpdateTeacher/4  
+        /// Headers: Content-Type: application/json  
+        /// Request Body:  
+        /// {  
+        /// "TeacherFname": "Alice",  
+        /// "TeacherLname": "Johnson",  
+        /// "EmployeeNumber": "T222",  
+        /// "HireDate": "2024-11-03 00:00:00",  
+        /// "Salary": "60.50"  
+        /// } ->  
+        /// {  
+        /// "TeacherId": 4,  
+        /// "TeacherFname": "Alice",  
+        /// "TeacherLname": "Johnson",  
+        /// "EmployeeNumber": "T222",  
+        /// "HireDate": "2024-11-03 00:00:00",  
+        /// "Salary": "60.50"  
+        /// }
+        /// </example>
+        /// <returns>
+        /// Returns the updated teacher object.
+        /// </returns>
+
+
+        [HttpPut(template: "UpdateTeacher/{TeacherId}")]
+        public Teacher UpdateTeacher(int TeacherId, [FromBody] Teacher TeacherData)
+        {
+            // 'using' will close the connection after the code executes
+            using (MySqlConnection Connection = _context.AccessDatabase())
+            {
+                // Open the connection
+                Connection.Open();
+
+                // Establish a new command (query) for our database
+                MySqlCommand Command = Connection.CreateCommand();
+
+                Command.CommandText = "UPDATE teachers SET teacherfname=@teacherfname, teacherlname=@teacherlname, employeenumber=@employeenumber, hiredate=@hiredate, salary=@salary where teacherid=@id";
+                Command.Parameters.AddWithValue("@teacherfname", TeacherData.TeacherFName);
+                Command.Parameters.AddWithValue("@teacherlname", TeacherData.TeacherLName);
+                Command.Parameters.AddWithValue("@employeenumber", TeacherData.EmployeeNumber);
+                Command.Parameters.AddWithValue("@hiredate", TeacherData.HireDate);
+                Command.Parameters.AddWithValue("@salary", TeacherData.Salary);
+
+                Command.Parameters.AddWithValue("@id", TeacherId);
+
+                Command.ExecuteNonQuery();
+            }
+
+
+            return FindTeacher(TeacherId);
         }
 
 

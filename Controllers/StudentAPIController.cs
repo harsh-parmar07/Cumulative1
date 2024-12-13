@@ -9,21 +9,20 @@ namespace Cumulative_1.Controllers
     public class StudentAPIController : ControllerBase
     {
         private readonly SchoolDbContext _context;
-
-        // Dependency injection of school database context
         public StudentAPIController(SchoolDbContext context)
         {
             _context = context;
         }
 
         /// <summary>
-        /// Retrieves a list of all students in the system
+        /// Retrieves a list of all students in the system.
         /// </summary>
         /// <example>
-        /// GET api/Student/ListStudents -> [{"studentId":1,"studentFName":"Sarah","studentLName":"Valdez","studentNumber":"N1678","enrolDate":"2018-06-18"},{"studentId":2,"studentFName":"Jennifer","studentLName":"Faulkner","studentNumber":"N1679","enrolDate":"2018-08-02"},{"studentId":3,"studentFName":"Austin","studentLName":"Simon","studentNumber":"N1682","enrolDate":"2018-06-14"},..]
+        /// Example:  
+        /// GET api/Student/ListStudents -> [{"studentId":1,"studentFName":"Sarah","studentLName":"Valdez","studentNumber":"N1678","enrolDate":"2018-06-18"},{"studentId":2,"studentFName":"Jennifer","studentLName":"Faulkner","studentNumber":"N1679","enrolDate":"2018-08-02"},{"studentId":3,"studentFName":"Austin","studentLName":"Simon","studentNumber":"N1682","enrolDate":"2018-06-14"},...]
         /// </example>
         /// <returns>
-        /// A collection of student objects
+        /// Returns a collection of student objects.
         /// </returns>
 
         [HttpGet]
@@ -57,7 +56,7 @@ namespace Cumulative_1.Controllers
                         CurrentStudent.StudentFName = (ResultSet["studentfname"]).ToString();
                         CurrentStudent.StudentLName = (ResultSet["studentlname"]).ToString();
                         CurrentStudent.StudentNumber = (ResultSet["studentnumber"]).ToString();
-                        CurrentStudent.EnrolDate = ResultSet["enroldate"] != DBNull.Value ? Convert.ToDateTime(ResultSet["enroldate"]).ToString("yyyy/MM/dd") : "";
+                        CurrentStudent.EnrolDate = Convert.ToDateTime(ResultSet["enroldate"]).ToString("yyyy-MM-dd");
                         // Add it to the Students list
                         Students.Add(CurrentStudent);
                     }
@@ -69,14 +68,15 @@ namespace Cumulative_1.Controllers
 
 
         /// <summary>
-        /// Retrieves a student from the database using their unique ID
+        /// Fetches a specific student from the database using their ID.
         /// </summary>
-        /// <param name="id">An integer representing the unique student ID</param>
+        /// <param name="id">An integer representing the student ID.</param>
         /// <example>
+        /// Example:  
         /// GET api/Student/FindStudent/7 -> {"studentId":7,"studentFName":"Jason","studentLName":"Freeman","studentNumber":"N1694","enrolDate":"2018-08-16"}
         /// </example>
         /// <returns>
-        /// The student object matching the given ID, or an empty object if no match is found
+        /// Returns the student object matching the given ID. If no student is found, returns an empty object.
         /// </returns>
 
         [HttpGet]
@@ -110,7 +110,7 @@ namespace Cumulative_1.Controllers
                         SelectedStudent.StudentFName = (ResultSet["studentfname"]).ToString();
                         SelectedStudent.StudentLName = (ResultSet["studentlname"]).ToString();
                         SelectedStudent.StudentNumber = (ResultSet["studentnumber"]).ToString();
-                        SelectedStudent.EnrolDate = ResultSet["enroldate"] != DBNull.Value ? Convert.ToDateTime(ResultSet["enroldate"]).ToString("yyyy/MM/dd") : "";
+                        SelectedStudent.EnrolDate = Convert.ToDateTime(ResultSet["enroldate"]).ToString("yyyy-MM-dd");
 
                     }
                 }
@@ -120,26 +120,26 @@ namespace Cumulative_1.Controllers
         }
 
 
-        /// curl -X "POST" -H "Content-Type: application/json" -d "{\"studentFName\": \"Jane\",\"studentLName\": \"Williams\",\"studentNumber\": \"N7879\",\"enrolDate\": \"2019-01-15\"}" "https://localhost:7151/api/Student/AddStudent"
-
         /// <summary>
-        /// Adds a student to the database
+        /// Inserts a new student into the database.
         /// </summary>
-        /// <param name="StudentData">Student Object</param>
+        /// <param name="StudentData">An object containing the student's details.</param>
         /// <example>
-        /// POST: api/Student/AddStudent
-        /// Headers: Content-Type: application/json
-        /// Request Body:
-        /// {
-        /// "StudentFname": "James",
-        /// "StudentLname": "Oliver",
-        /// "StudentNumber": "N1243",
-        /// "EnrolDate": "01-15-2018"
+        /// Example:  
+        /// POST: api/Student/AddStudent  
+        /// Headers: Content-Type: application/json  
+        /// Request Body:  
+        /// {  
+        /// "StudentFname": "James",  
+        /// "StudentLname": "Oliver",  
+        /// "StudentNumber": "N1243",  
+        /// "EnrolDate": "01-15-2018"  
         /// } -> 25
         /// </example>
         /// <returns>
-        /// The inserted Student Id from the database if successful. 0 if Unsuccessful
+        /// Returns the ID of the newly added student if successful, or 0 if the operation fails.
         /// </returns>
+
 
         [HttpPost(template: "AddStudent")]
         public int AddStudent([FromBody] Student StudentData)
@@ -173,15 +173,17 @@ namespace Cumulative_1.Controllers
         }
 
         /// <summary>
-        /// Removes a student from the database
+        /// Removes a student from the database.
         /// </summary>
-        /// <param name="StudentId">The unique identifier of the student to delete</param>
+        /// <param name="StudentId">The ID of the student to be deleted.</param>
         /// <example>
-        /// DELETE: api/Student/DeleteStudent/{StudentId} -> "The student with given id {StudentId} has been removed from the database"
+        /// Example:  
+        /// DELETE: api/Student/DeleteStudent/{StudentId} -> "The student with the given ID {StudentId} has been removed from the database."
         /// </example>
         /// <returns>
-        /// A message confirming successful deletion ("The student with given id {StudentId} has been removed from the database") 
-        /// if the student exists, or an error message ("The student with given id {StudentId} is not found") if it does not
+        /// Returns a message:  
+        /// - "The student with the given ID {StudentId} has been removed from the database" if the student exists.  
+        /// - "The student with the given ID {StudentId} is not found" if the student does not exist.  
         /// </returns>
 
 
@@ -216,6 +218,61 @@ namespace Cumulative_1.Controllers
             {
                 return $"The student with given id {StudentId} is not found";
             }
+        }
+
+        /// <summary>
+        /// Updates an existing student in the database. The student data is provided as an object, and the request query includes the student ID.
+        /// </summary>
+        /// <param name="StudentData">An object containing the updated student details.</param>
+        /// <param name="StudentId">The primary key of the student to be updated.</param>
+        /// <example>
+        /// Example:  
+        /// PUT: api/Student/UpdateStudent/4  
+        /// Headers: Content-Type: application/json  
+        /// Request Body:  
+        /// {  
+        ///	    "StudentFname": "Alice",  
+        ///	    "StudentLname": "Johnson",  
+        ///	    "StudentNumber": "T222",  
+        ///	    "EnrolDate": "2024-11-03 00:00:00"  
+        /// } ->  
+        /// {  
+        ///     "StudentId": 4,  
+        ///	    "StudentFname": "Alice",  
+        ///	    "StudentLname": "Johnson",  
+        ///	    "StudentNumber": "T222",  
+        ///	    "EnrolDate": "2024-11-03 00:00:00"  
+        /// }
+        /// </example>
+        /// <returns>
+        /// Returns the updated student object.
+        /// </returns>
+
+        [HttpPut(template: "UpdateStudent/{StudentId}")]
+        public Student UpdateStudent(int StudentId, [FromBody] Student StudentData)
+        {
+            // 'using' will close the connection after the code executes
+            using (MySqlConnection Connection = _context.AccessDatabase())
+            {
+                // Open the connection
+                Connection.Open();
+
+                // Establish a new command (query) for our database
+                MySqlCommand Command = Connection.CreateCommand();
+
+                Command.CommandText = "UPDATE students SET studentfname=@studentfname, studentlname=@studentlname, studentnumber=@studentnumber, enroldate=@enroldate where studentid=@id";
+                Command.Parameters.AddWithValue("@studentfname", StudentData.StudentFName);
+                Command.Parameters.AddWithValue("@studentlname", StudentData.StudentLName);
+                Command.Parameters.AddWithValue("@studentnumber", StudentData.StudentNumber);
+                Command.Parameters.AddWithValue("@enroldate", StudentData.EnrolDate);
+
+                Command.Parameters.AddWithValue("@id", StudentId);
+
+                Command.ExecuteNonQuery();
+            }
+
+
+            return FindStudent(StudentId);
         }
 
     }

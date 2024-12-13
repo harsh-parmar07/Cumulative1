@@ -6,12 +6,16 @@
 
         <h2 class="text-center text-primary mb-4">Course Information</h2>
 
+        <!-- Course Details Section -->
         <div class="row justify-content-center">
             <div class="col-md-8">
+                <!-- Card for Course Details -->
                 <div class="card shadow-sm rounded-lg border-0">
                     <div class="card-body">
+                        <!-- Section Title -->
                         <h5 class="card-title text-center text-secondary mb-4">Course Details</h5>
 
+                        <!-- List of course details -->
                         <ul class="list-group list-group-flush">
                             <li class="list-group-item d-flex justify-content-between">
                                 <strong>Course ID:</strong>
@@ -42,6 +46,20 @@
                 </div>
             </div>
         </div>
+
+        <!-- Button Section at the Bottom -->
+        <div class="row justify-content-between mt-5">
+            <div class="col-3 text-start">
+                <a href="/CoursePage/List" class="btn btn-secondary btn-lg w-100">Back to Courses</a>
+            </div>
+            <div class="col-3 text-end">
+                <a href="/CoursePage/Edit/@Model.CourseId" class="btn btn-warning btn-lg w-100">Edit Course</a>
+            </div>
+            <div class="col-3 text-end">
+                <a href="/CoursePage/DeleteConfirm/@Model.CourseId" class="btn btn-danger btn-lg w-100">Delete Course</a>
+            </div>
+        </div>
+
     }
     else
     {

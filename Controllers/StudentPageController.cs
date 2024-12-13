@@ -54,12 +54,20 @@ namespace Cumulative_1.Controllers
         {
             string EmployeeNumberPattern = @"^N\d{4}$";
 
+            // Check for the student number validation
+            if (string.IsNullOrEmpty(StudentData.StudentNumber))
+            {
+                TempData["ErrorMessage"] = "Student number cannot be empty";
+                return RedirectToAction("Validation");
+            }
+
             // Check for the student number number pattern
             if (!string.IsNullOrEmpty(StudentData.StudentNumber) && !Regex.IsMatch(StudentData.StudentNumber, EmployeeNumberPattern))
             {
                 TempData["ErrorMessage"] = "Student number should start with 'N' followed by 4 digits. Eg: N1234";
                 return RedirectToAction("Validation");
             }
+
             // Check for the student number which exist already
             if (!string.IsNullOrEmpty(StudentData.StudentNumber) && Regex.IsMatch(StudentData.StudentNumber, EmployeeNumberPattern))
             {
@@ -72,6 +80,13 @@ namespace Cumulative_1.Controllers
                         return RedirectToAction("Validation");
                     }
                 }
+            }
+
+            // Check for enrol date
+            if (string.IsNullOrEmpty(StudentData.EnrolDate))
+            {
+                TempData["ErrorMessage"] = "Enrol Date cannot be empty.";
+                return RedirectToAction("Validation");
             }
             // Check for future enrol date
             if (!string.IsNullOrEmpty(StudentData.EnrolDate) && DateTime.Parse(StudentData.EnrolDate) > DateTime.Now)
@@ -122,6 +137,97 @@ namespace Cumulative_1.Controllers
 
             // redirects to list action
             return RedirectToAction("List");
+        }
+
+        // GET : StudentPage/Edit/{id}
+        [HttpGet]
+        public IActionResult Edit(int id)
+        {
+            Student SelectedStudent = _api.FindStudent(id);
+            ViewData["Id"] = id;
+            return View(SelectedStudent);
+
+        }
+
+        // POST: StudentPage/Update/{id}
+        [HttpPost]
+        public IActionResult Update(int id, string StudentFName, string StudentLName, string StudentNumber, string EnrolDate)
+        {
+            string EmployeeNumberPattern = @"^N\d{4}$";
+            Student UpdateStudent = new Student();
+
+            UpdateStudent.StudentFName = StudentFName;
+            UpdateStudent.StudentLName = StudentLName;
+            UpdateStudent.StudentNumber = StudentNumber;
+            UpdateStudent.EnrolDate = EnrolDate.ToString();
+
+            // Check for enrol date
+            if (string.IsNullOrEmpty(UpdateStudent.EnrolDate))
+            {
+                TempData["ErrorMessage"] = "Enrol Date cannot be empty.";
+                return RedirectToAction("Validation");
+            }
+
+            // Check for future enrol date
+            if (!string.IsNullOrEmpty(UpdateStudent.EnrolDate) && DateTime.Parse(UpdateStudent.EnrolDate) > DateTime.Now)
+            {
+                TempData["ErrorMessage"] = "Enrol Date cannot be in future.";
+                return RedirectToAction("Validation");
+            }
+
+            // Check for the student number validation
+            if (string.IsNullOrEmpty(UpdateStudent.StudentNumber))
+            {
+                TempData["ErrorMessage"] = "Student number cannot be empty";
+                return RedirectToAction("Validation");
+            }
+
+            // Check for the student number number pattern
+            if (!string.IsNullOrEmpty(UpdateStudent.StudentNumber) && !Regex.IsMatch(UpdateStudent.StudentNumber, EmployeeNumberPattern))
+            {
+                TempData["ErrorMessage"] = "Student number should start with 'N' followed by 4 digits. Eg: N1234";
+                return RedirectToAction("Validation");
+            }
+
+            // Check for the student number which exist already
+            if (!string.IsNullOrEmpty(UpdateStudent.StudentNumber) && Regex.IsMatch(UpdateStudent.StudentNumber, EmployeeNumberPattern))
+            {
+                List<Student> Students = _api.ListStudents();
+                foreach (Student CurrentStudent in Students)
+                {
+                    if (UpdateStudent.StudentId == null && CurrentStudent.StudentNumber == UpdateStudent.StudentNumber)
+                    {
+                        TempData["ErrorMessage"] = "This student number has already been taken by the student";
+                        return RedirectToAction("Validation");
+                    }
+                }
+            }
+
+            // Check for student name field from the input and respond with appropriate error message
+            if (string.IsNullOrEmpty(UpdateStudent.StudentFName) && string.IsNullOrEmpty(UpdateStudent.StudentLName))
+            {
+                TempData["ErrorMessage"] = "Student first and last name cannot be empty";
+                return RedirectToAction("Validation");
+            }
+            else if (string.IsNullOrEmpty(UpdateStudent.StudentFName))
+            {
+                TempData["ErrorMessage"] = "Student first name cannot be empty";
+                return RedirectToAction("Validation");
+            }
+            else if (string.IsNullOrEmpty(UpdateStudent.StudentLName))
+            {
+                TempData["ErrorMessage"] = "Student last name cannot be empty";
+                return RedirectToAction("Validation");
+            }
+
+            else
+            {
+                _api.UpdateStudent(id, UpdateStudent);
+
+                // redirects to show student
+                return RedirectToAction("Show", new { id = id });
+            }
+
         }
 
     }
